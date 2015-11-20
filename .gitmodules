@@ -1,0 +1,3 @@
+[submodule "sparkjobserver"]
+	path = sparkjobserver
+	url = https://github.com/Altiscale/spark-jobserver.git
