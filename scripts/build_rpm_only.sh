@@ -13,6 +13,7 @@ build_timeout=14400
 maven_settings="$HOME/.m2/settings.xml"
 maven_settings_spec="$curr_dir/alti-maven-settings.spec"
 
+git_submodulename="spark-jobserver"
 git_hash=""
 
 if [ -f "$curr_dir/setup_env.sh" ]; then
@@ -49,13 +50,13 @@ cleanup_secrets()
 
 env | sort
 pushd `pwd`
-cd $WORKSPACE/sparkjs
-if [ "x${SPARK_BRANCH_NAME}" = "x" ] ; then
-  echo "error - SPARK_BRANCH_NAME is not defined. Please specify the BRANCH_NAME explicitly. Exiting!"
+cd $WORKSPACE/$git_submodulename
+if [ "x${APPLICATION_BRANCH_NAME}" = "x" ] ; then
+  echo "error - APPLICATION_BRANCH_NAME is not defined. Please specify the APPLICATION_BRANCH_NAME explicitly. Exiting!"
   exit -9
 fi
-  echo "ok - switching to latest branch $SPARK_BRANCH_NAME and refetch the files"
-  git checkout $SPARK_BRANCH_NAME
+  echo "ok - switching to latest branch $APPLICATION_BRANCH_NAME and refetch the files"
+  git checkout $APPLICATION_BRANCH_NAME
   git fetch --all
   git pull
   git_hash=$(git rev-parse HEAD | tr -d '\n')
@@ -66,7 +67,7 @@ mkdir -p $WORKSPACE/rpmbuild/{BUILD,BUILDROOT,RPMS,SPECS,SOURCES,SRPMS}/
 cp -f "$sparkjs_spec" $WORKSPACE/rpmbuild/SPECS/sparkjs.spec
 sparkjs_tar="sparkjs.tar"
 pushd $WORKSPACE
-tar --exclude .git --exclude .gitignore -cf $WORKSPACE/rpmbuild/SOURCES/${sparkjs_tar} sparkjobserver test_sparkjs
+tar --exclude .git --exclude .gitignore -cf $WORKSPACE/rpmbuild/SOURCES/${sparkjs_tar} $git_submodulename test_sparkjs
 popd
 
 pushd "$WORKSPACE/rpmbuild/SOURCES/"
@@ -74,7 +75,7 @@ tar -xf $sparkjs_tar
 if [ -d alti-sparkjobserver ] ; then
   rm -rf alti-sparkjobserver
 fi
-mv sparkjobserver alti-sparkjobserver
+mv $git_submodulename alti-sparkjobserver
 cp -rp test_sparkjs alti-sparkjobserver/
 tar --exclude .git --exclude .gitignore -cpzf alti-sparkjobserver.tar.gz alti-sparkjobserver
 stat alti-sparkjobserver.tar.gz

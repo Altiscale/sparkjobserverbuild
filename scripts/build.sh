@@ -90,12 +90,12 @@ fi
 pushd `pwd`
 cd $WORKSPACE/$git_submodulename
 
-if [ "x${SPARK_JS_BRANCH_NAME}" = "x" ] ; then
-  echo "error - SPARK_JS_BRANCH_NAME is not defined, even though, you may checkout the code from hadoop_ecosystem_component_build, this does not gurantee you have the right branch. Please specify the BRANCH_NAME explicitly. Exiting!"
+if [ "x${APPLICATION_BRANCH_NAME}" = "x" ] ; then
+  echo "error - APPLICATION_BRANCH_NAME is not defined, even though, you may checkout the code from hadoop_ecosystem_component_build, this does not gurantee you have the right branch. Please specify the APPLICATION_BRANCH_NAME explicitly. Exiting!"
   exit -9
 fi
-echo "ok - switching to spark branch $SPARK_JS_BRANCH_NAME and refetch the files"
-git checkout $SPARK_JS_BRANCH_NAME
+echo "ok - switching to spark branch $APPLICATION_BRANCH_NAME and refetch the files"
+git checkout $APPLICATION_BRANCH_NAME
 git fetch --all
 git_hash=$(git rev-parse HEAD | tr -d '\n')
 popd

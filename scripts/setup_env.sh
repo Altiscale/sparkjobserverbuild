@@ -120,8 +120,10 @@ else
 fi 
 export ALTISCALE_RELEASE
 
-if [ "x${BRANCH_NAME}" = "x" ] ; then
-  export BRANCH_NAME=altiscale-branch-0.6.1
+# The branch for the application, NOT this build script
+if [ "x${APPLICATION_BRANCH_NAME}" = "x" ] ; then
+  export APPLICATION_BRANCH_NAME=altiscale-branch-0.6.1
+  echo "warn - applying default branch $APPLICATION_BRANCH_NAME for this build, it is recommended to explicitly set this env APPLICATION_BRANCH_NAME var"
 fi
 
 if [ "x${BUILD_TIMEOUT}" = "x" ] ; then
