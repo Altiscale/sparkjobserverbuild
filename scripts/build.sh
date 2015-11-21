@@ -16,6 +16,8 @@ maven_settings_spec="$curr_dir/alti-maven-settings.spec"
 git_submodulename="spark-jobserver"
 git_hash=""
 
+rpm_name="alti-sparkjobserver"
+
 if [ -f "$curr_dir/setup_env.sh" ]; then
   set -a
   source "$curr_dir/setup_env.sh"
@@ -114,12 +116,12 @@ tar --exclude .git --exclude .gitignore -cf $WORKSPACE/rpmbuild/SOURCES/${sparkj
 popd
 pushd "$WORKSPACE/rpmbuild/SOURCES/"
 tar -xf $sparkjs_tar
-if [ -d alti-sparkjobserver ] ; then
-  rm -rf alti-sparkjobserver
+if [ -d $rpm_name ] ; then
+  rm -rf $rpm_name
 fi
-mv $git_submodulename alti-sparkjobserver
-cp -rp test_sparkjs alti-sparkjobserver/
-tar --exclude .git --exclude .gitignore -czf alti-sparkjobserver.tar.gz alti-sparkjobserver
+mv $git_submodulename $rpm_name
+cp -rp test_sparkjs $rpm_name/
+tar --exclude .git --exclude .gitignore -czf $rpm_name.tar.gz $rpm_name
 if [ -f "$maven_settings" ] ; then
   mkdir -p  alti-maven-settings
   cp "$maven_settings" alti-maven-settings/
@@ -159,8 +161,8 @@ if [ $? -ne "0" ] ; then
   exit -98
 fi
 
-stat "$WORKSPACE/rpmbuild/SRPMS/alti-spark-${SPARK_JS_VERSION}-${SPARK_JS_VERSION}-${ALTISCALE_RELEASE}.${BUILD_TIME}.el6.src.rpm"
-rpm -ivvv "$WORKSPACE/rpmbuild/SRPMS/alti-spark-${SPARK_JS_VERSION}-${SPARK_JS_VERSION}-${ALTISCALE_RELEASE}.${BUILD_TIME}.el6.src.rpm"
+stat "$WORKSPACE/rpmbuild/SRPMS/$rpm_name-${SPARK_JS_VERSION}-${SPARK_JS_VERSION}-${ALTISCALE_RELEASE}.${BUILD_TIME}.el6.src.rpm"
+rpm -ivvv "$WORKSPACE/rpmbuild/SRPMS/$rpm_name-${SPARK_JS_VERSION}-${SPARK_JS_VERSION}-${ALTISCALE_RELEASE}.${BUILD_TIME}.el6.src.rpm"
 
 echo "ok - applying $WORKSPACE for the new BASEDIR for mock, pattern delimiter here should be :"
 # the path includeds /, so we need a diff pattern delimiter
@@ -180,7 +182,7 @@ mock -vvv --configdir=$curr_dir -r altiscale-sparkjs-centos-6-x86_64.runtime --i
 
 mock -vvv --configdir=$curr_dir -r altiscale-sparkjs-centos-6-x86_64.runtime --no-clean --no-cleanup-after --install $WORKSPACE/rpmbuild/RPMS/noarch/alti-maven-settings-1.0-1.el6.noarch.rpm
 
-mock -vvv --configdir=$curr_dir -r altiscale-sparkjs-centos-6-x86_64.runtime --no-clean --rpmbuild_timeout=$build_timeout --resultdir=$WORKSPACE/rpmbuild/RPMS/ --rebuild $WORKSPACE/rpmbuild/SRPMS/alti-spark-${SPARK_JS_VERSION}-${SPARK_JS_VERSION}-${ALTISCALE_RELEASE}.${BUILD_TIME}.el6.src.rpm
+mock -vvv --configdir=$curr_dir -r altiscale-sparkjs-centos-6-x86_64.runtime --no-clean --rpmbuild_timeout=$build_timeout --resultdir=$WORKSPACE/rpmbuild/RPMS/ --rebuild $WORKSPACE/rpmbuild/SRPMS/$rpm_name-${SPARK_JS_VERSION}-${SPARK_JS_VERSION}-${ALTISCALE_RELEASE}.${BUILD_TIME}.el6.src.rpm
 
 if [ $? -ne "0" ] ; then
   echo "fail - mock RPM build failed"
