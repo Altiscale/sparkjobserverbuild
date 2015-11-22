@@ -147,7 +147,7 @@ sed -i "s/SPARK_JS_PLAINVERSION_REPLACE/$SPARK_JS_PLAIN_VERSION/g" "$WORKSPACE/r
 sed -i "s:CURRENT_WORKSPACE_REPLACE:$WORKSPACE:g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
 sed -i "s/HADOOP_VERSION_REPLACE/$HADOOP_VERSION/g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
 sed -i "s/HADOOP_BUILD_VERSION_REPLACE/$HADOOP_BUILD_VERSION/g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
-sed -i "s/SPARK_USER/$SPARK_USER/g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
+sed -i "s/SPARK_APP_NAME/$SPARK_APP_NAME/g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
 sed -i "s/SPARK_GID/$SPARK_GID/g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
 sed -i "s/SPARK_UID/$SPARK_UID/g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
 sed -i "s/BUILD_TIME/$BUILD_TIME/g" "$WORKSPACE/rpmbuild/SPECS/sparkjs.spec"
