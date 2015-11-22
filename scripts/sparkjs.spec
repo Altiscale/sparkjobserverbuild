@@ -167,9 +167,9 @@ rm -rf %{buildroot}%{install_sparkjs_dest}
 %files
 %defattr(0644,spark,spark,0644)
 %attr(0444,spark,spark) %{install_sparkjs_dest}/THIS_IS_A_SNAPSHOT_BUILD.txt
-%{install_sparkjs_dest}/akka-app/target
-%{install_sparkjs_dest}/job-server-api/target
-%{install_sparkjs_dest}/job-server/target
+%attr(0644,spark,spark) %{install_sparkjs_dest}/akka-app/target
+%attr(0644,spark,spark) %{install_sparkjs_dest}/job-server-api/target
+%attr(0644,spark,spark) %{install_sparkjs_dest}/job-server/target
 %docdir %{install_sparkjs_dest}/doc
 %doc %{install_sparkjs_label}
 %doc %{install_sparkjs_dest}/LICENSE.md
