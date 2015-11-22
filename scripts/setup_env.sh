@@ -42,8 +42,8 @@ export PATH=$PATH:$M2_HOME/bin:$SCALA_HOME/bin:$ANT_HOME/bin:$JAVA_HOME/bin:$R_H
 
 # Define default spark uid:gid and build version
 # and all other Spark build related env
-if [ "x${SPARK_USER}" = "x" ] ; then
-  export SPARK_USER=spark
+if [ "x${SPARK_APP_NAME}" = "x" ] ; then
+  export SPARK_APP_NAME=sparkjobserver
 fi
 if [ "x${SPARK_GID}" = "x" ] ; then
   export SPARK_GID=411460017

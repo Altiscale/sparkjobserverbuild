@@ -1,4 +1,4 @@
-%global apache_name            SPARK_USER
+%global apache_name            SPARK_APP_NAME
 %global spark_uid              SPARK_UID
 %global spark_gid              SPARK_GID
 
