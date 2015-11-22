@@ -24,6 +24,9 @@ fi
 if [ "x${HADOOP_VERSION}" = "x" ] ; then
   export HADOOP_VERSION=2.4.1
 fi
+if [ "x${SPARK_VERSION}" = "x" ] ; then
+  export SPARK_VERSION=1.5.2
+fi
 # Spark 1.5+ default Hive starts with 1.2.1, backward compatible with Hive 1.2.0
 if [ "x${HIVE_VERSION}" = "x" ] ; then
   export HIVE_VERSION=1.2.1
@@ -57,11 +60,21 @@ fi
 if [ "x${SPARK_JS_PLAIN_VERSION}" = "x" ] ; then
   export SPARK_JS_PLAIN_VERSION=0.6.1
 fi
-if [ "x${SPARK_YARN}" = "x" ] ; then
-  export SPARK_YARN=true
-fi
-if [ "x${SPARK_HIVE}" = "x" ] ; then
-  export SPARK_HIVE=true
+
+# Defines which Spark version to build against
+SPARK_BUILD_VERSION=$SPARK_VERSION
+
+# Define what goes into the RPM pkg name
+if [ "x${SPARK_VERSION}" = "x1.4.1" ] ; then
+  export SPARK_JS_VERSION="$SPARK_JS_VERSION.spark141"
+elif [ "x${SPARK_VERSION}" = "x1.4.2" ] ; then
+  export SPARK_JS_VERSION="$SPARK_JS_VERSION.spark142"
+elif [ "x${SPARK_VERSION}" = "x1.5.2" ] ; then
+  export SPARK_JS_VERSION="$SPARK_JS_VERSION.spark152"
+elif [ "x${SPARK_VERSION}" = "x1.6.0" ] ; then
+  export SPARK_JS_VERSION="$SPARK_JS_VERSION.spark160"
+else
+  echo "error - can't recognize altiscale's SPARK_VERSION=$SPARK_VERSION"
 fi
 
 # Defines which Hadoop version to build against

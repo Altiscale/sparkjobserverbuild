@@ -8,8 +8,8 @@
 %define sparkjs_version        SPARK_JS_VERSION_REPLACE
 %define sparkjs_plain_version  SPARK_JS_PLAINVERSION_REPLACE
 %define current_workspace      CURRENT_WORKSPACE_REPLACE
-%define hadoop_version         HADOOP_VERSION_REPLACE
 %define hadoop_build_version   HADOOP_BUILD_VERSION_REPLACE
+%define spark_build_version    SPARK_BUILD_VERSION_REPLACE
 %define build_service_name     alti-sparkjobserver
 %define sparkjs_folder_name    %{rpm_package_name}-%{sparkjs_version}
 %define sparkjs_testsuite_name %{sparkjs_folder_name}
@@ -66,22 +66,25 @@ echo "build - spark job server in %{_builddir}"
 pushd `pwd`
 cd %{_builddir}/%{build_service_name}/
 
-if [ "x%{hadoop_version}" = "x" ] ; then
+if [ "x%{hadoop_build_version}" = "x" ] ; then
   echo "fatal - HADOOP_VERSION needs to be set, can't build anything, exiting"
   exit -8
 else
-  export SPARK_HADOOP_VERSION=%{hadoop_version}
+  export SPARK_HADOOP_VERSION=%{hadoop_build_version}
   echo "ok - applying customized hadoop version $SPARK_HADOOP_VERSION"
 fi
 
-if [ "x%{hadoop_build_version}" = "x" ] ; then
-  echo "fatal - hadoop_build_version needs to be set, can't build anything, exiting"
+if [ "x%{spark_build_version}" = "x" ] ; then
+  echo "fatal - SPARK_VERSION needs to be set, can't build anything, exiting"
   exit -8
+else
+  export SPARK_VERSION=%{spark_build_version}
+  echo "ok - applying customized spark version $SPARK_VERSION"
 fi
 
 env | sort
 
-echo "ok - building assembly with HADOOP_VERSION=$SPARK_HADOOP_VERSION"
+echo "ok - building assembly with HADOOP_VERSION=$SPARK_HADOOP_VERSION SPARK_VERSION=$SPARK_VERSION"
 
 # PURGE LOCAL CACHE for clean build
 # mvn dependency:purge-local-repository
@@ -93,27 +96,31 @@ echo "ok - building assembly with HADOOP_VERSION=$SPARK_HADOOP_VERSION"
 # and install them locally for further reference. We assume the build
 # environment is clean, so we don't need to delete ~/.ivy2 and ~/.m2
 # Default JDK version applied is 1.7 here.
+hadoop_profile=""
+spark_profile=""
+if [[ $SPARK_HADOOP_VERSION == 2.4.* ]] ; then
+  hadoop_profile="hadoop-2.4"
+elif [[ $SPARK_HADOOP_VERSION == 2.7.* ]] ; then
+  hadoop_profile="hadoop-2.7"
+else
+  echo "fatal - Unrecognize hadoop version $SPARK_HADOOP_VERSION, can't continue, exiting, no cleanup"
+  exit -9
+fi
+if [[ $SPARK_VERSION == 1.4.* ]] ; then
+  spark_profile="spark-1.4"
+elif [[ $SPARK_VERSION == 1.5.* ]] ; then
+  spark_profile="spark-1.5"
+else
+  echo "fatal - Unrecognize spark version $SPARK_VERSION, can't continue, exiting, no cleanup"
+  exit -9
+fi
 
 if [ -f /etc/alti-maven-settings/settings.xml ] ; then
   echo "ok - applying local maven repo settings.xml for first priority"
-  if [[ $SPARK_HADOOP_VERSION == 2.4.* ]] ; then
-    mvn -U -X -Phadoop-2.4 -Pspark-1.4 --settings /etc/alti-maven-settings/settings.xml --global-settings /etc/alti-maven-settings/settings.xml -DskipTests compile package
-  elif [[ $SPARK_HADOOP_VERSION == 2.7.* ]] ; then
-    mvn -U -X -Phadoop-2.7 -Pspark-1.5 --settings /etc/alti-maven-settings/settings.xml --global-settings /etc/alti-maven-settings/settings.xml -DskipTests compile package
-  else
-    echo "fatal - Unrecognize hadoop version $SPARK_HADOOP_VERSION, can't continue, exiting, no cleanup"
-    exit -9
-  fi
+  mvn -U -X -P$hadoop_profile -P$spark_profile --settings /etc/alti-maven-settings/settings.xml --global-settings /etc/alti-maven-settings/settings.xml -DskipTests compile package
 else
   echo "ok - applying default repository form pom.xml"
-  if [[ $SPARK_HADOOP_VERSION == 2.4.* ]] ; then
-    mvn -U -X -Phadoop-2.4 -Pspark-1.4 -DskipTests compile package
-  elif [[ $SPARK_HADOOP_VERSION == 2.7.* ]] ; then
-    mvn -U -X -Phadoop-2.7 -Pspark-1.5 -DskipTests compile package
-  else
-    echo "fatal - Unrecognize hadoop version $SPARK_HADOOP_VERSION, can't continue, exiting, no cleanup"
-    exit -9
-  fi
+  mvn -U -X -P${hadoop_profile} -P${spark_profile} -DskipTests compile package
 fi
 popd
 echo "ok - build spark job server completed successfully!"
@@ -133,6 +140,7 @@ echo "test install spark label sparkjs_folder_name = %{sparkjs_folder_name}"
 %{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/akka-app/target/
 %{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/job-server-api/target/
 %{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/job-server/target/
+%{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/job-server-extras/target/
 # work and logs folder is for runtime, this is a dummy placeholder here to set the right permission within RPMs
 # logs folder should coordinate with log4j and be redirected to /var/log for syslog/flume to pick up
 %{__mkdir} -p %{buildroot}%{install_sparkjs_logs}
@@ -140,6 +148,7 @@ echo "test install spark label sparkjs_folder_name = %{sparkjs_folder_name}"
 cp -rp %{_builddir}/%{build_service_name}/akka-app/target/*.jar %{buildroot}/%{install_sparkjs_dest}/akka-app/target/
 cp -rp %{_builddir}/%{build_service_name}/job-server-api/target/*.jar %{buildroot}/%{install_sparkjs_dest}/job-server-api/target/
 cp -rp %{_builddir}/%{build_service_name}/job-server/target/*.jar %{buildroot}/%{install_sparkjs_dest}/job-server/target/
+cp -rp %{_builddir}/%{build_service_name}/job-server-extras/target/*.jar %{buildroot}/%{install_sparkjs_dest}/job-server-extras/target/
 
 # deploy the config folder
 cp -rp %{_builddir}/%{build_service_name}/job-server/config/* %{buildroot}/%{install_sparkjs_conf}
@@ -153,6 +162,8 @@ rm -f %{buildroot}/%{install_sparkjs_label}
 touch %{buildroot}/%{install_sparkjs_label}
 echo "name=%{name}" >> %{buildroot}/%{install_sparkjs_label}
 echo "version=%{sparkjs_version}" >> %{buildroot}/%{install_sparkjs_label}
+echo "spark_version=%{spark_build_version}" >> %{buildroot}/%{install_sparkjs_label}
+echo "hadoop_version=%{hadoop_build_version}" >> %{buildroot}/%{install_sparkjs_label}
 echo "release=%{name}-%{release}" >> %{buildroot}/%{install_sparkjs_label}
 echo "git_rev=%{git_hash_release}" >> %{buildroot}/%{install_sparkjs_label}
 
@@ -170,6 +181,7 @@ rm -rf %{buildroot}%{install_sparkjs_dest}
 %attr(0644,spark,spark) %{install_sparkjs_dest}/akka-app/target
 %attr(0644,spark,spark) %{install_sparkjs_dest}/job-server-api/target
 %attr(0644,spark,spark) %{install_sparkjs_dest}/job-server/target
+%attr(0644,spark,spark) %{install_sparkjs_dest}/job-server-extras/target
 %docdir %{install_sparkjs_dest}/doc
 %doc %{install_sparkjs_label}
 %doc %{install_sparkjs_dest}/LICENSE.md
