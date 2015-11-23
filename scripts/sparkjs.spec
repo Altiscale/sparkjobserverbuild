@@ -141,6 +141,7 @@ echo "test install spark label sparkjs_folder_name = %{sparkjs_folder_name}"
 %{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/job-server-api/target/
 %{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/job-server/target/
 %{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/job-server-extras/target/
+%{__mkdir} -p %{buildroot}%{install_sparkjs_dest}/job-server-tests/target/
 # work and logs folder is for runtime, this is a dummy placeholder here to set the right permission within RPMs
 # logs folder should coordinate with log4j and be redirected to /var/log for syslog/flume to pick up
 %{__mkdir} -p %{buildroot}%{install_sparkjs_logs}
@@ -149,6 +150,7 @@ cp -rp %{_builddir}/%{build_service_name}/akka-app/target/*.jar %{buildroot}/%{i
 cp -rp %{_builddir}/%{build_service_name}/job-server-api/target/*.jar %{buildroot}/%{install_sparkjs_dest}/job-server-api/target/
 cp -rp %{_builddir}/%{build_service_name}/job-server/target/*.jar %{buildroot}/%{install_sparkjs_dest}/job-server/target/
 cp -rp %{_builddir}/%{build_service_name}/job-server-extras/target/*.jar %{buildroot}/%{install_sparkjs_dest}/job-server-extras/target/
+cp -rp %{_builddir}/%{build_service_name}/job-server-tests/target/*.jar %{buildroot}/%{install_sparkjs_dest}/job-server-tests/target/
 
 # deploy the config folder
 cp -rp %{_builddir}/%{build_service_name}/job-server/config/* %{buildroot}/%{install_sparkjs_conf}
@@ -186,6 +188,8 @@ rm -rf %{buildroot}%{install_sparkjs_dest}
 %attr(0644,spark,spark) %{install_sparkjs_dest}/job-server/target
 %attr(0644,spark,spark) %{install_sparkjs_dest}/job-server-extras
 %attr(0644,spark,spark) %{install_sparkjs_dest}/job-server-extras/target
+%attr(0644,spark,spark) %{install_sparkjs_dest}/job-server-tests
+%attr(0644,spark,spark) %{install_sparkjs_dest}/job-server-tests/target
 %docdir %{install_sparkjs_dest}/doc
 %doc %{install_sparkjs_label}
 %doc %{install_sparkjs_dest}/LICENSE.md
